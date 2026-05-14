@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BTC Miner Tycoon</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --btc: #f7931a; --bg: #0f0f0f; --card: #1a1a1a; --text: #e0e0e0; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid #333; margin-bottom: 15px; }
+        .balance { font-size: 32px; color: var(--btc); font-weight: bold; margin: 5px 0; }
+        .stats { display: flex; justify-content: space-between; font-size: 13px; color: #888; margin-bottom: 15px; }
+        
+        /* Shop Styles */
+        .shop-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .upgrade-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #252525; padding: 10px; border-radius: 8px; margin-bottom: 8px;
+        }
+        .upgrade-info { text-align: left; }
+        .upgrade-name { font-weight: bold; font-size: 14px; }
+        .upgrade-cost { font-size: 12px; color: var(--btc); }
+
+        button { 
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-main { width: 100%; padding: 15px; font-size: 16px; background: var(--btc); color: white; margin-bottom: 10px; }
+        .btn-buy { padding: 8px 12px; background: #333; color: white; font-size: 12px; }
+        .btn-buy:enabled { background: #444; border: 1px solid var(--btc); }
+        .btn-buy:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        #console { font-family: monospace; font-size: 10px; background: #000; color: #0f0; padding: 10px; height: 60px; overflow-y: auto; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="stats">
+        <span>Hashes: <b id="h-val">0</b></span>
+        <span>Power: <b id="p-val">1.0</b>x</span>
+    </div>
+    <div style="font-size: 12px; color: #888;">Guthaben</div>
+    <div class="balance"><span id="b-val">0.00000000</span> BTC</div>
+    
+    <button class="btn-main" id="mineBtn" onclick="toggleMining()">Mining Starten</button>
+</div>
+
+<div class="card">
+    <div class="shop-title">Hardware Upgrades</div>
+    <!-- Upgrade 1 -->
+    <div class="upgrade-item">
+        <div class="upgrade-info">
+            <div class="upgrade-name">Basic CPU</div>
+            <div class="upgrade-cost">Kosten: 5.000 Hashes</div>
+        </div>
+        <button class="btn-buy" id="up1" onclick="buyUpgrade(5000, 0.5)">Kaufen</button>
+    </div>
+    <!-- Upgrade 2 -->
+    <div class="upgrade-item">
+        <div class="upgrade-info">
+            <div class="upgrade-name">NVIDIA GPU</div>
+            <div class="upgrade-cost">Kosten: 25.000 Hashes</div>
+        </div>
+        <button class="btn-buy" id="up2" onclick="buyUpgrade(25000, 2.0)">Kaufen</button>
+    </div>
+</div>
+
+<button class="btn-main" style="background:#28a745; display:none;" id="withdrawBtn" onclick="payout()">Auszahlen an Bot</button>
+
+<div id="console">System gestartet...</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // VARIABLEN LADEN
+    let btc = parseFloat(localStorage.getItem('m_btc')) || 0;
+    let hashes = parseInt(localStorage.getItem('m_hashes')) || 0;
+    let power = parseFloat(localStorage.getItem('m_power')) || 1.0;
+    let isMining = false;
+    let loop;
+
+    updateUI();
+
+    function toggleMining() {
+        isMining = !isMining;
+        const btn = document.getElementById('mineBtn');
+        if (isMining) {
+            btn.innerText = "Stoppen";
+            btn.style.background = "#d9534f";
+            loop = setInterval(mine, 1000);
+        } else {
+            btn.innerText = "Mining Starten";
+            btn.style.background = "var(--btc)";
+            clearInterval(loop);
+        }
+    }
+
+    function mine() {
+        // Hashes generieren basierend auf Power
+        let newHashes = Math.floor((Math.random() * 500 + 100) * power);
+        hashes += newHashes;
+
+        // BTC Chance
+        if (Math.random() > 0.8) {
+            let gain = 0.0005 * power;
+            btc += gain;
+            log(`Block gefunden! +${gain.toFixed(5)} BTC`);
+        }
+        
+        save();
+        updateUI();
+    }
+
+    function buyUpgrade(cost, powerGain) {
+        if (hashes >= cost) {
+            hashes -= cost;
+            power += powerGain;
+            log(`Upgrade gekauft! Power +${powerGain}`);
+            save();
+            updateUI();
+        }
+    }
+
+    function save() {
+        localStorage.setItem('m_btc', btc);
+        localStorage.setItem('m_hashes', hashes);
+        localStorage.setItem('m_power', power);
+    }
+
+    function updateUI() {
+        document.getElementById('b-val').innerText = btc.toFixed(8);
+        document.getElementById('h-val').innerText = hashes.toLocaleString();
+        document.getElementById('p-val').innerText = power.toFixed(1);
+
+        // Buttons steuern
+        document.getElementById('up1').disabled = hashes < 5000;
+        document.getElementById('up2').disabled = hashes < 25000;
+        
+        if (btc >= 1.0) {
+            document.getElementById('withdrawBtn').style.display = "block";
+        }
+    }
+
+    function payout() {
+        const data = { type: "payout", amount: btc.toFixed(8), hashes: hashes, power: power };
+        tg.sendData(JSON.stringify(data));
+        log("Daten an Bot gesendet!");
+    }
+
+    function log(m) {
+        const c = document.getElementById('console');
+        c.innerHTML = `> ${m}<br>` + c.innerHTML;
+    }
+</script>
+
+</body>
+</html>
