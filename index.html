@@ -3,34 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BTC Miner Tycoon</title>
+    <title>BTC Miner Tycoon Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --btc: #f7931a; --bg: #0f0f0f; --card: #1a1a1a; --text: #e0e0e0; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; padding-bottom: 50px; }
         .card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid #333; margin-bottom: 15px; }
         .balance { font-size: 32px; color: var(--btc); font-weight: bold; margin: 5px 0; }
         .stats { display: flex; justify-content: space-between; font-size: 13px; color: #888; margin-bottom: 15px; }
         
-        /* Shop Styles */
-        .shop-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .shop-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--btc); }
+        .upgrade-list { display: flex; flex-direction: column; gap: 8px; }
         .upgrade-item { 
             display: flex; justify-content: space-between; align-items: center; 
-            background: #252525; padding: 10px; border-radius: 8px; margin-bottom: 8px;
+            background: #252525; padding: 12px; border-radius: 8px; border: 1px solid #444;
         }
         .upgrade-info { text-align: left; }
-        .upgrade-name { font-weight: bold; font-size: 14px; }
+        .upgrade-name { font-weight: bold; font-size: 14px; color: #fff; }
         .upgrade-cost { font-size: 12px; color: var(--btc); }
+        .upgrade-power { font-size: 10px; color: #888; }
 
-        button { 
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
+        button { border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-main { width: 100%; padding: 15px; font-size: 16px; background: var(--btc); color: white; margin-bottom: 10px; }
-        .btn-buy { padding: 8px 12px; background: #333; color: white; font-size: 12px; }
+        .btn-buy { padding: 8px 12px; background: #333; color: white; font-size: 12px; min-width: 80px; }
         .btn-buy:enabled { background: #444; border: 1px solid var(--btc); }
-        .btn-buy:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-buy:enabled:active { background: var(--btc); }
+        .btn-buy:disabled { opacity: 0.3; cursor: not-allowed; }
         
-        #console { font-family: monospace; font-size: 10px; background: #000; color: #0f0; padding: 10px; height: 60px; overflow-y: auto; border-radius: 8px; }
+        #console { font-family: monospace; font-size: 10px; background: #000; color: #0f0; padding: 10px; height: 80px; overflow-y: auto; border-radius: 8px; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -47,39 +47,118 @@
 </div>
 
 <div class="card">
-    <div class="shop-title">Hardware Upgrades</div>
-    <!-- Upgrade 1 -->
-    <div class="upgrade-item">
-        <div class="upgrade-info">
-            <div class="upgrade-name">Basic CPU</div>
-            <div class="upgrade-cost">Kosten: 5.000 Hashes</div>
+    <div class="shop-title">Mining Rig Upgrades</div>
+    <div class="upgrade-list">
+        <!-- Upgrades -->
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Basic CPU</div>
+                <div class="upgrade-cost">Kosten: 5.000</div>
+                <div class="upgrade-power">+0.5 Power</div>
+            </div>
+            <button class="btn-buy" id="up1" onclick="buyUpgrade(5000, 0.5, 'up1')">Kaufen</button>
         </div>
-        <button class="btn-buy" id="up1" onclick="buyUpgrade(5000, 0.5)">Kaufen</button>
-    </div>
-    <!-- Upgrade 2 -->
-    <div class="upgrade-item">
-        <div class="upgrade-info">
-            <div class="upgrade-name">NVIDIA GPU</div>
-            <div class="upgrade-cost">Kosten: 25.000 Hashes</div>
+
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">NVIDIA GPU</div>
+                <div class="upgrade-cost">Kosten: 25.000</div>
+                <div class="upgrade-power">+2.0 Power</div>
+            </div>
+            <button class="btn-buy" id="up2" onclick="buyUpgrade(25000, 2.0, 'up2')">Kaufen</button>
         </div>
-        <button class="btn-buy" id="up2" onclick="buyUpgrade(25000, 2.0)">Kaufen</button>
+
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">ASIC Antminer S9</div>
+                <div class="upgrade-cost">Kosten: 100.000</div>
+                <div class="upgrade-power">+5.0 Power</div>
+            </div>
+            <button class="btn-buy" id="up3" onclick="buyUpgrade(100000, 5.0, 'up3')">Kaufen</button>
+        </div>
+
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Liquid Cooling System</div>
+                <div class="upgrade-cost">Kosten: 500.000</div>
+                <div class="upgrade-power">+15.0 Power</div>
+            </div>
+            <button class="btn-buy" id="up4" onclick="buyUpgrade(500000, 15.0, 'up4')">Kaufen</button>
+        </div>
+
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Industrial Rig</div>
+                <div class="upgrade-cost">Kosten: 2.500.000</div>
+                <div class="upgrade-power">+50.0 Power</div>
+            </div>
+            <button class="btn-buy" id="up5" onclick="buyUpgrade(2500000, 50.0, 'up5')">Kaufen</button>
+        </div>
+
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Server Farm</div>
+                <div class="upgrade-cost">Kosten: 10.000.000</div>
+                <div class="upgrade-power">+150.0 Power</div>
+            </div>
+            <button class="btn-buy" id="up6" onclick="buyUpgrade(10000000, 150.0, 'up6')">Kaufen</button>
+        </div>
+
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Quantum Processor</div>
+                <div class="upgrade-cost">Kosten: 50.000.000</div>
+                <div class="upgrade-power">+600.0 Power</div>
+            </div>
+            <button class="btn-buy" id="up7" onclick="buyUpgrade(50000000, 600.0, 'up7')">Kaufen</button>
+        </div>
+
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Satellite Mining Hub</div>
+                <div class="upgrade-cost">Kosten: 250.000.000</div>
+                <div class="upgrade-power">+2.500 Power</div>
+            </div>
+            <button class="btn-buy" id="up8" onclick="buyUpgrade(250000000, 2500.0, 'up8')">Kaufen</button>
+        </div>
+
+        <div class="upgrade-item">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Dyson Sphere Node</div>
+                <div class="upgrade-cost">Kosten: 1.000.000.000</div>
+                <div class="upgrade-power">+10.000 Power</div>
+            </div>
+            <button class="btn-buy" id="up9" onclick="buyUpgrade(1000000000, 10000.0, 'up9')">Kaufen</button>
+        </div>
     </div>
 </div>
 
 <button class="btn-main" style="background:#28a745; display:none;" id="withdrawBtn" onclick="payout()">Auszahlen an Bot</button>
 
-<div id="console">System gestartet...</div>
+<div id="console">Kernsysteme online...</div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // VARIABLEN LADEN
     let btc = parseFloat(localStorage.getItem('m_btc')) || 0;
     let hashes = parseInt(localStorage.getItem('m_hashes')) || 0;
     let power = parseFloat(localStorage.getItem('m_power')) || 1.0;
     let isMining = false;
     let loop;
+
+    // Liste aller Upgrades für die UI-Steuerung
+    const upgrades = [
+        { id: 'up1', cost: 5000 },
+        { id: 'up2', cost: 25000 },
+        { id: 'up3', cost: 100000 },
+        { id: 'up4', cost: 500000 },
+        { id: 'up5', cost: 2500000 },
+        { id: 'up6', cost: 10000000 },
+        { id: 'up7', cost: 50000000 },
+        { id: 'up8', cost: 250000000 },
+        { id: 'up9', cost: 1000000000 }
+    ];
 
     updateUI();
 
@@ -90,36 +169,38 @@
             btn.innerText = "Stoppen";
             btn.style.background = "#d9534f";
             loop = setInterval(mine, 1000);
+            log("Mining-Prozess gestartet...");
         } else {
             btn.innerText = "Mining Starten";
             btn.style.background = "var(--btc)";
             clearInterval(loop);
+            log("Mining-Prozess pausiert.");
         }
     }
 
     function mine() {
-        // Hashes generieren basierend auf Power
         let newHashes = Math.floor((Math.random() * 500 + 100) * power);
         hashes += newHashes;
 
-        // BTC Chance
-        if (Math.random() > 0.8) {
-            let gain = 0.0005 * power;
+        if (Math.random() > 0.95) { // Chance leicht reduziert für Balancing
+            let gain = 0.00001 * power; // BTC Gain angepasst an höhere Power-Skalierung
             btc += gain;
-            log(`Block gefunden! +${gain.toFixed(5)} BTC`);
+            log(`Block gelöst! +${gain.toFixed(8)} BTC`);
         }
         
         save();
         updateUI();
     }
 
-    function buyUpgrade(cost, powerGain) {
+    function buyUpgrade(cost, powerGain, id) {
         if (hashes >= cost) {
             hashes -= cost;
             power += powerGain;
-            log(`Upgrade gekauft! Power +${powerGain}`);
+            log(`Upgrade erfolgreich! +${powerGain} Power`);
             save();
             updateUI();
+        } else {
+            log("Nicht genügend Hashes!");
         }
     }
 
@@ -132,13 +213,15 @@
     function updateUI() {
         document.getElementById('b-val').innerText = btc.toFixed(8);
         document.getElementById('h-val').innerText = hashes.toLocaleString();
-        document.getElementById('p-val').innerText = power.toFixed(1);
+        document.getElementById('p-val').innerText = power.toLocaleString(undefined, {minimumFractionDigits: 1});
 
-        // Buttons steuern
-        document.getElementById('up1').disabled = hashes < 5000;
-        document.getElementById('up2').disabled = hashes < 25000;
+        // Alle Upgrade-Buttons prüfen
+        upgrades.forEach(up => {
+            const btn = document.getElementById(up.id);
+            if(btn) btn.disabled = hashes < up.cost;
+        });
         
-        if (btc >= 1.0) {
+        if (btc >= 0.1) { // Auszahlungsschwelle auf 0.1 BTC gesenkt für Testbarkeit
             document.getElementById('withdrawBtn').style.display = "block";
         }
     }
@@ -146,12 +229,15 @@
     function payout() {
         const data = { type: "payout", amount: btc.toFixed(8), hashes: hashes, power: power };
         tg.sendData(JSON.stringify(data));
-        log("Daten an Bot gesendet!");
+        log("Transfer-Anfrage an Bot gesendet...");
     }
 
     function log(m) {
         const c = document.getElementById('console');
-        c.innerHTML = `> ${m}<br>` + c.innerHTML;
+        const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        c.innerHTML = `<div><span style="color:#888">[${now}]</span> ${m}</div>` + c.innerHTML;
+        // Begrenze Log-Einträge
+        if(c.childNodes.length > 20) c.removeChild(c.lastChild);
     }
 </script>
 
